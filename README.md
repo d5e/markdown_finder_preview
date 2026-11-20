@@ -1,6 +1,6 @@
 # Markdown Finder Preview
 
-Read Markdown in macOS Finder. Select a Markdown file and press Space to open a typeset Quick Look preview. Use **Preview** and **Source** at the top to switch between the rendered document and its original text. Each file opens in Preview.
+Read Markdown in macOS Finder. Select a Markdown file and press Space to open a typeset Quick Look preview. Use **Preview** and **Source** at the top to switch between the rendered document and its original text. Each file opens in Preview. Finder’s right-hand Preview pane shows a typeset first-page thumbnail on light paper.
 
 The page follows macOS light and dark appearance. It uses Iowan Old Style for reading, Menlo for code, and a narrow measure for longer documents. The local MD4C renderer supports CommonMark with GitHub-style tables, task lists, and strikethrough. This MVP displays links as text with link styling and keeps navigation and image loading disabled.
 
@@ -19,4 +19,4 @@ The MD4C sources in `vendor/md4c` come from upstream tag `release-0.5.2` and inc
 
 ## Smoke tests
 
-Run `scripts/smoke.sh` to build and verify signing, then check the renderer. Run `scripts/smoke.sh --finder` from a logged-in English-language desktop to also open a temporary Markdown file in Finder and exercise the native toggle. The Finder test uses System Events and requires Accessibility and Automation access for the shell’s host.
+Run `scripts/smoke.sh` to build and verify signing, then check the renderer. Run `scripts/smoke.sh --finder` from a logged-in English-language desktop to also check the Quick Look thumbnail pixels and verify that Finder displays formatted text and literal source when you use the toggle. The Finder test uses System Events and requires Accessibility and Automation access for the shell’s host.

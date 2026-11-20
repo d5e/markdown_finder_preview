@@ -1,11 +1,23 @@
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
-#import <WebKit/WebKit.h>
-#import "MarkdownHTML.h"
+#import "MarkdownText.h"
 
-@interface PreviewViewController : NSViewController <QLPreviewingController, WKNavigationDelegate>
+@interface PreviewTextView : NSTextView
+@property(nonatomic, copy) void (^appearanceDidChange)(void);
+@end
+
+@implementation PreviewTextView
+- (void)viewDidChangeEffectiveAppearance {
+    [super viewDidChangeEffectiveAppearance];
+    if (self.appearanceDidChange) {
+        self.appearanceDidChange();
+    }
+}
+@end
+
+@interface PreviewViewController : NSViewController <QLPreviewingController>
 @property(nonatomic, strong) NSSegmentedControl *mode;
-@property(nonatomic, strong) WKWebView *documentView;
+@property(nonatomic, strong) PreviewTextView *documentView;
 @property(nonatomic, copy) NSString *source;
 @end
 
@@ -27,15 +39,28 @@
     [self.mode setAccessibilityLabel:@"Markdown view"];
     [bar addSubview:self.mode];
 
-    WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.preferences.javaScriptEnabled = NO;
-    configuration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
-    self.documentView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];
-    self.documentView.navigationDelegate = self;
-    self.documentView.translatesAutoresizingMaskIntoConstraints = NO;
+    NSScrollView *scroll = [[NSScrollView alloc] init];
+    scroll.translatesAutoresizingMaskIntoConstraints = NO;
+    scroll.hasVerticalScroller = YES;
+    scroll.drawsBackground = YES;
+
+    self.documentView = [[PreviewTextView alloc] init];
+    self.documentView.editable = NO;
+    self.documentView.selectable = YES;
+    self.documentView.drawsBackground = NO;
+    self.documentView.verticallyResizable = YES;
+    self.documentView.autoresizingMask = NSViewWidthSizable;
+    self.documentView.textContainer.widthTracksTextView = YES;
+    self.documentView.textContainerInset = NSMakeSize(38, 30);
+    [self.documentView setAccessibilityLabel:@"Markdown document"];
+    scroll.documentView = self.documentView;
+    __weak typeof(self) weakSelf = self;
+    self.documentView.appearanceDidChange = ^{
+        [weakSelf updateAppearance];
+    };
 
     [self.view addSubview:bar];
-    [self.view addSubview:self.documentView];
+    [self.view addSubview:scroll];
     [NSLayoutConstraint activateConstraints:@[
         [bar.topAnchor constraintEqualToAnchor:self.view.topAnchor],
         [bar.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
@@ -43,19 +68,16 @@
         [bar.heightAnchor constraintEqualToConstant:42],
         [self.mode.centerXAnchor constraintEqualToAnchor:bar.centerXAnchor],
         [self.mode.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
-        [self.documentView.topAnchor constraintEqualToAnchor:bar.bottomAnchor],
-        [self.documentView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.documentView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.documentView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+        [scroll.topAnchor constraintEqualToAnchor:bar.bottomAnchor],
+        [scroll.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [scroll.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [scroll.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
     ]];
 }
 
 - (void)preparePreviewOfFileAtURL:(NSURL *)url completionHandler:(void (^)(NSError *))handler {
     NSError *error = nil;
-    NSString *source = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:NULL];
-    if (!source) {
-        source = [NSString stringWithContentsOfURL:url usedEncoding:NULL error:&error];
-    }
+    NSString *source = ReadMarkdown(url, &error);
     if (!source) {
         handler(error);
         return;
@@ -68,18 +90,30 @@
 }
 
 - (void)showSelectedMode:(NSSegmentedControl *)sender {
-    [self.documentView loadHTMLString:MarkdownHTML(self.source ?: @"", sender.selectedSegment == 1)
-                              baseURL:nil];
+    [self updateAppearance];
+    [self.documentView setSelectedRange:NSMakeRange(0, 0)];
+    [self.documentView scrollRangeToVisible:NSMakeRange(0, 0)];
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)action
-decisionHandler:(void (^)(WKNavigationActionPolicy))handler {
-    BOOL generatedDocument = [action.request.URL.absoluteString isEqualToString:@"about:blank"];
-    handler(generatedDocument ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
+- (void)updateAppearance {
+    if (!self.source) {
+        return;
+    }
+    NSAppearance *appearance = self.documentView.effectiveAppearance;
+    BOOL dark = [[appearance bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]]
+        isEqualToString:NSAppearanceNameDarkAqua];
+    self.documentView.enclosingScrollView.backgroundColor =
+        dark ? [NSColor colorWithWhite:0.125 alpha:1] : NSColor.whiteColor;
+
+    NSAttributedString *text;
+    if (self.mode.selectedSegment == 1) {
+        text = [[NSAttributedString alloc] initWithString:self.source attributes:@{
+            NSFontAttributeName: [NSFont monospacedSystemFontOfSize:13 weight:NSFontWeightRegular],
+            NSForegroundColorAttributeName: dark ? NSColor.whiteColor : NSColor.blackColor
+        }];
+    } else {
+        text = MarkdownText(self.source, appearance);
+    }
+    [self.documentView.textStorage setAttributedString:text];
 }
 @end
-
-extern int NSExtensionMain(int argc, const char *argv[]);
-int main(int argc, const char *argv[]) {
-    return NSExtensionMain(argc, argv);
-}

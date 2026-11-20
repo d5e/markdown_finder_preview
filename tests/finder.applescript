@@ -31,9 +31,14 @@ on run argv
             set previewWindow to window "Quick Look"
             if not (exists static text "Markdown Finder Smoke.md" of previewWindow) then error "Unexpected preview file"
             set modes to radio group 1 of previewWindow
+            set documentText to text area 1 of scroll area 1 of previewWindow
             if value of radio button "Preview" of modes is not 1 then error "Preview is not selected by default"
+            set renderedText to value of documentText as text
+            if renderedText does not contain "Rendered text" or renderedText contains "**Rendered text**" or renderedText starts with "#" then error "Preview did not display formatted Markdown"
             click radio button "Source" of modes
             if value of radio button "Source" of modes is not 1 then error "Source did not select"
+            set sourceText to value of documentText as text
+            if sourceText does not start with "# Markdown Finder Smoke" or sourceText does not contain "**Rendered text**" then error "Source did not display literal Markdown"
             click radio button "Preview" of modes
             if value of radio button "Preview" of modes is not 1 then error "Preview did not reselect"
             click (first button of previewWindow whose subrole is "AXCloseButton")
@@ -43,5 +48,5 @@ on run argv
         tell application "Finder" to close testWindow
         error messageText number errorNumber
     end try
-    return "PASS Finder defaults to Preview and switches between Preview and Source"
+    return "PASS Finder displays formatted Markdown and literal source"
 end run
