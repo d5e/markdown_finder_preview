@@ -1,7 +1,18 @@
 # Markdown Finder Preview
 
-Read Markdown in macOS Finder. Select a Markdown file and press Space to open a typeset Quick Look preview. Switch between Preview and Source using the control at the top.
+Read Markdown in macOS Finder. Select a Markdown file and press Space to open a typeset Quick Look preview. Use **Preview** and **Source** at the top to switch between the rendered document and its original text. Each file opens in Preview.
 
-The MVP targets Intel macOS Catalina. It renders Markdown locally as HTML, with a serif reading face, a clear heading hierarchy, monospaced code, and light and dark appearance support.
+The page follows macOS light and dark appearance. It uses Iowan Old Style for reading, Menlo for code, and a narrow measure for longer documents. The local MD4C renderer supports CommonMark with GitHub-style tables, task lists, and strikethrough. This MVP displays links as text with link styling and keeps navigation and image loading disabled.
 
-Implementation and Finder verification are pending.
+## Build and register
+
+Requires macOS Catalina or later with Apple Command Line Tools and Python 3. Tested on Intel macOS 10.15.8.
+
+```sh
+python3 scripts/build.py
+open -a "$PWD/build/Markdown Finder Preview.app"
+```
+
+Dismiss the app’s welcome dialog, select a Markdown file in Finder, and press Space. If another Markdown Quick Look extension takes precedence, select Markdown Finder Preview in System Preferences under Extensions → Quick Look. The app bundle can also be moved to Applications for permanent use.
+
+The MD4C sources in `vendor/md4c` come from upstream tag `release-0.5.2` and include the MIT license.
