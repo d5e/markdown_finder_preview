@@ -16,3 +16,7 @@ open -a "$PWD/build/Markdown Finder Preview.app"
 Dismiss the app’s welcome dialog, select a Markdown file in Finder, and press Space. If another Markdown Quick Look extension takes precedence, select Markdown Finder Preview in System Preferences under Extensions → Quick Look. The app bundle can also be moved to Applications for permanent use.
 
 The MD4C sources in `vendor/md4c` come from upstream tag `release-0.5.2` and include the MIT license.
+
+## Smoke tests
+
+Run `scripts/smoke.sh` to build and verify signing, then check the renderer. Run `scripts/smoke.sh --finder` from a logged-in English-language desktop to also open a temporary Markdown file in Finder and exercise the native toggle. The Finder test uses System Events and requires Accessibility and Automation access for the shell’s host.
