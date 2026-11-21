@@ -27,6 +27,14 @@
     self.view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 760, 680)];
     self.preferredContentSize = self.view.frame.size;
 
+    NSVisualEffectView *bar = [self createToolbar];
+    NSScrollView *scroll = [self createDocumentScrollView];
+    [self.view addSubview:bar];
+    [self.view addSubview:scroll];
+    [self constrainToolbar:bar scrollView:scroll];
+}
+
+- (NSVisualEffectView *)createToolbar {
     NSVisualEffectView *bar = [[NSVisualEffectView alloc] init];
     bar.material = NSVisualEffectMaterialHeaderView;
     bar.blendingMode = NSVisualEffectBlendingModeWithinWindow;
@@ -38,7 +46,10 @@
     self.mode.translatesAutoresizingMaskIntoConstraints = NO;
     [self.mode setAccessibilityLabel:@"Markdown view"];
     [bar addSubview:self.mode];
+    return bar;
+}
 
+- (NSScrollView *)createDocumentScrollView {
     NSScrollView *scroll = [[NSScrollView alloc] init];
     scroll.translatesAutoresizingMaskIntoConstraints = NO;
     scroll.hasVerticalScroller = YES;
@@ -59,8 +70,10 @@
         [weakSelf updateAppearance];
     };
 
-    [self.view addSubview:bar];
-    [self.view addSubview:scroll];
+    return scroll;
+}
+
+- (void)constrainToolbar:(NSVisualEffectView *)bar scrollView:(NSScrollView *)scroll {
     [NSLayoutConstraint activateConstraints:@[
         [bar.topAnchor constraintEqualToAnchor:self.view.topAnchor],
         [bar.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],

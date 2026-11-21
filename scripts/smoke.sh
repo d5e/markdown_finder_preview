@@ -24,3 +24,8 @@ if [[ ${1:-} == --finder ]]; then
     "$scratch/thumbnail" "$fixture"
     osascript tests/finder.applescript "$fixture"
 fi
+
+xcrun clang -mmacosx-version-min=10.15 -fobjc-arc -Isrc -Ivendor/md4c \
+    tests/browser.m src/MarkdownHTML.m vendor/md4c/{md4c.c,md4c-html.c,entity.c} \
+    -framework Cocoa -framework WebKit -o "$scratch/browser"
+"$scratch/browser"
