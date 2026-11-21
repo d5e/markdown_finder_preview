@@ -118,15 +118,19 @@
     self.documentView.enclosingScrollView.backgroundColor =
         dark ? [NSColor colorWithWhite:0.125 alpha:1] : NSColor.whiteColor;
 
-    NSAttributedString *text;
-    if (self.mode.selectedSegment == 1) {
-        text = [[NSAttributedString alloc] initWithString:self.source attributes:@{
-            NSFontAttributeName: [NSFont monospacedSystemFontOfSize:13 weight:NSFontWeightRegular],
-            NSForegroundColorAttributeName: dark ? NSColor.whiteColor : NSColor.blackColor
-        }];
-    } else {
-        text = MarkdownText(self.source, appearance);
-    }
+    NSAttributedString *text = [self textForAppearance:appearance dark:dark];
     [self.documentView.textStorage setAttributedString:text];
+}
+
+- (NSAttributedString *)textForAppearance:(NSAppearance *)appearance dark:(BOOL)dark {
+    if (self.mode.selectedSegment != 1) {
+        return MarkdownText(self.source, appearance);
+    }
+
+    NSDictionary *attributes = @{
+        NSFontAttributeName: [NSFont monospacedSystemFontOfSize:13 weight:NSFontWeightRegular],
+        NSForegroundColorAttributeName: dark ? NSColor.whiteColor : NSColor.blackColor
+    };
+    return [[NSAttributedString alloc] initWithString:self.source attributes:attributes];
 }
 @end
