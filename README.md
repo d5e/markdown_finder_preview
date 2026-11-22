@@ -19,4 +19,7 @@ The MD4C sources in `vendor/md4c` come from upstream tag `release-0.5.2` and inc
 
 ## Smoke tests
 
-Run `scripts/smoke.sh` to build and verify signing, then check the renderer. Run `scripts/smoke.sh --finder` from a logged-in English-language desktop to also check the Quick Look thumbnail pixels and verify that Finder displays formatted text and literal source when you use the toggle. The Finder test uses System Events and requires Accessibility and Automation access for the shell’s host.
+- **CI:** `scripts/smoke.sh --ci` (also the default) checks app signing, Markdown rendering, and the preview controls and resize behavior. GitHub Actions runs this group on macOS for pushes and pull requests.
+- **Local Finder:** `scripts/smoke.sh --finder` checks Quick Look thumbnail pixels and switches between Preview and Source in Finder. Run it from a logged-in English-language desktop with Accessibility and Automation access for the shell’s host.
+
+Use `scripts/smoke.sh --all` to run both groups in one build.

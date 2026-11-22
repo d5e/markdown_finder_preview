@@ -1,0 +1,17 @@
+name: macOS smoke tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run CI smoke tests
+        run: scripts/smoke.sh --ci
