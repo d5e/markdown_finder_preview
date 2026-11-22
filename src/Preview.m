@@ -74,10 +74,10 @@
     [bar addSubview:self.fontChoice];
 
     self.fontSizeChoice = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
-    [self.fontSizeChoice addItemsWithTitles:@[@"14 pt", @"16 pt", @"18 pt", @"20 pt", @"24 pt"]];
+    [self.fontSizeChoice addItemsWithTitles:@[@"10 pt", @"12 pt", @"14 pt", @"16 pt", @"18 pt"]];
     NSInteger savedSize = [[NSUserDefaults standardUserDefaults] integerForKey:@"PreviewFontSize"];
-    NSString *sizeTitle = [NSString stringWithFormat:@"%ld pt", (long)(savedSize ?: 18)];
-    [self.fontSizeChoice selectItemWithTitle:@"18 pt"];
+    NSString *sizeTitle = [NSString stringWithFormat:@"%ld pt", (long)savedSize];
+    [self.fontSizeChoice selectItemWithTitle:@"14 pt"];
     if ([self.fontSizeChoice itemWithTitle:sizeTitle]) [self.fontSizeChoice selectItemWithTitle:sizeTitle];
     self.fontSizeChoice.target = self;
     self.fontSizeChoice.action = @selector(changeFontSize:);

@@ -25,7 +25,7 @@ static BOOL CheckUnits(void) {
 
     CGFloat previous = 0;
     BOOL increasing = YES;
-    for (NSNumber *size in @[@14, @16, @18, @20, @24]) {
+    for (NSNumber *size in @[@10, @12, @14, @16, @18]) {
         NSFont *font = BodyFont(MarkdownTextWithFont(source, appearance, @"Serif", size.integerValue));
         increasing &= font.pointSize > previous;
         previous = font.pointSize;
@@ -60,6 +60,10 @@ static BOOL CheckControls(PreviewViewController *controller, NSURL *fixture) {
     NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
     id oldFamily = [defaults objectForKey:@"PreviewFontFamily"];
     id oldSize = [defaults objectForKey:@"PreviewFontSize"];
+    [defaults removeObjectForKey:@"PreviewFontSize"];
+    PreviewViewController *freshController = [PreviewViewController new];
+    (void)freshController.view;
+    BOOL defaultSize = [freshController.fontSizeChoice.titleOfSelectedItem isEqual:@"14 pt"];
     NSPopUpButton *family = controller.fontChoice;
     NSMutableSet *families = [NSMutableSet set];
     for (NSString *title in @[@"Serif", @"Sans-serif", @"Monospace"]) {
@@ -75,7 +79,7 @@ static BOOL CheckControls(PreviewViewController *controller, NSURL *fixture) {
     NSPopUpButton *size = controller.fontSizeChoice;
     CGFloat previous = 0;
     BOOL increasing = YES;
-    for (NSString *title in @[@"14 pt", @"16 pt", @"18 pt", @"20 pt", @"24 pt"]) {
+    for (NSString *title in @[@"10 pt", @"12 pt", @"14 pt", @"16 pt", @"18 pt"]) {
         [size selectItemWithTitle:title];
         [size sendAction:size.action to:size.target];
         CGFloat current = BodyFont(text).pointSize;
@@ -83,7 +87,7 @@ static BOOL CheckControls(PreviewViewController *controller, NSURL *fixture) {
         previous = current;
     }
     passed &= Check(@"integration size menu redraws all five sizes and saves the choice",
-        size.numberOfItems == 5 && increasing && [defaults integerForKey:@"PreviewFontSize"] == 24);
+        defaultSize && size.numberOfItems == 5 && increasing && [defaults integerForKey:@"PreviewFontSize"] == 18);
 
     NSSegmentedControl *mode = controller.mode;
     mode.selectedSegment = 1;
