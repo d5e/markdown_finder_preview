@@ -40,7 +40,7 @@
 
 - (void)loadView {
     self.view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 760, 680)];
-    self.preferredContentSize = self.view.frame.size;
+    self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
     NSVisualEffectView *bar = [self createToolbar];
     NSScrollView *scroll = [self createDocumentScrollView];

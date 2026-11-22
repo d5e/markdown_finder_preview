@@ -8,13 +8,16 @@ int main(void) {
         NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 500, 500)
             styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
         window.contentView = controller.view;
+        [window makeKeyAndOrderFront:nil];
         controller.source = [@"A paragraph of words that should reflow across the available width. " stringByPaddingToLength:1500 withString:@" More words follow." startingAtIndex:0];
         [controller updateAppearance];
-        [controller.documentView.enclosingScrollView setFrameSize:NSMakeSize(500, 500)];
+        [window setContentSize:NSMakeSize(500, 500)];
+        [controller.view layoutSubtreeIfNeeded];
         [controller.documentView.layoutManager ensureLayoutForTextContainer:controller.documentView.textContainer];
         CGFloat narrowWidth = controller.documentView.textContainer.containerSize.width;
         CGFloat narrowHeight = [controller.documentView.layoutManager usedRectForTextContainer:controller.documentView.textContainer].size.height;
-        [controller.documentView.enclosingScrollView setFrameSize:NSMakeSize(1000, 500)];
+        [window setContentSize:NSMakeSize(1000, 500)];
+        [controller.view layoutSubtreeIfNeeded];
         [controller.documentView.layoutManager ensureLayoutForTextContainer:controller.documentView.textContainer];
         CGFloat wideWidth = controller.documentView.textContainer.containerSize.width;
         CGFloat wideHeight = [controller.documentView.layoutManager usedRectForTextContainer:controller.documentView.textContainer].size.height;
