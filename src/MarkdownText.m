@@ -6,7 +6,6 @@ static NSString * const EnabledMediaQuery = @"@media all";
 static NSString * const DisabledMediaQuery = @"@media not all";
 static NSString * const ImageTagPattern = @"<img\\b[^>]*>";
 static NSString * const EmptyString = @"";
-static const CGFloat FallbackFontSize = 18.0;
 static const CGFloat DarkInkWhite = 0.92;
 static const CGFloat LightInkWhite = 0.15;
 static const CGFloat ColorOpacity = 1.0;
@@ -51,9 +50,9 @@ static NSMutableAttributedString *ImportHTML(NSString *html) {
                                                      error:NULL];
 }
 
-static NSMutableAttributedString *FallbackText(NSString *source) {
+static NSMutableAttributedString *FallbackText(NSString *source, NSInteger fontSize) {
     NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont systemFontOfSize:FallbackFontSize]
+        NSFontAttributeName: [NSFont systemFontOfSize:fontSize]
     };
     return [[NSMutableAttributedString alloc] initWithString:source attributes:attributes];
 }
@@ -88,19 +87,21 @@ static void StyleLinks(NSMutableAttributedString *text, NSColor *color) {
         }];
 }
 
-NSAttributedString *MarkdownTextWithFont(NSString *source, NSAppearance *appearance, NSString *fontFamily) {
+NSAttributedString *MarkdownTextWithFont(NSString *source, NSAppearance *appearance, NSString *fontFamily, NSInteger fontSize) {
     BOOL dark = IsDarkAppearance(appearance);
     NSString *html = HTMLForAppearance(source, dark);
     NSString *family = [fontFamily isEqualToString:@"Sans-serif"] ? @"-apple-system,sans-serif" :
         ([fontFamily isEqualToString:@"Monospace"] ? @"Menlo,monospace" : @"'Iowan Old Style',Georgia,serif");
     html = [html stringByReplacingOccurrencesOfString:@"'Iowan Old Style',Georgia,serif" withString:family];
     html = [html stringByReplacingOccurrencesOfString:@"font-family:-apple-system,sans-serif;font-size:.92em" withString:@"font-size:.92em"];
-    NSMutableAttributedString *text = ImportHTML(html) ?: FallbackText(source);
+    html = [html stringByReplacingOccurrencesOfString:@"font:18px/"
+        withString:[NSString stringWithFormat:@"font:%ldpx/", (long)fontSize]];
+    NSMutableAttributedString *text = ImportHTML(html) ?: FallbackText(source, fontSize);
     ApplyInkColor(text, InkColor(dark));
     StyleLinks(text, LinkColor(dark));
     return text;
 }
 
 NSAttributedString *MarkdownText(NSString *source, NSAppearance *appearance) {
-    return MarkdownTextWithFont(source, appearance, @"Serif");
+    return MarkdownTextWithFont(source, appearance, @"Serif", 18);
 }

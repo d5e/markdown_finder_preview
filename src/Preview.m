@@ -32,6 +32,7 @@
 @interface PreviewViewController : NSViewController <QLPreviewingController>
 @property(nonatomic, strong) NSSegmentedControl *mode;
 @property(nonatomic, strong) NSPopUpButton *fontChoice;
+@property(nonatomic, strong) NSPopUpButton *fontSizeChoice;
 @property(nonatomic, strong) PreviewTextView *documentView;
 @property(nonatomic, copy) NSString *source;
 @end
@@ -71,6 +72,18 @@
     self.fontChoice.translatesAutoresizingMaskIntoConstraints = NO;
     [self.fontChoice setAccessibilityLabel:@"Preview font"];
     [bar addSubview:self.fontChoice];
+
+    self.fontSizeChoice = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
+    [self.fontSizeChoice addItemsWithTitles:@[@"14 pt", @"16 pt", @"18 pt", @"20 pt", @"24 pt"]];
+    NSInteger savedSize = [[NSUserDefaults standardUserDefaults] integerForKey:@"PreviewFontSize"];
+    NSString *sizeTitle = [NSString stringWithFormat:@"%ld pt", (long)(savedSize ?: 18)];
+    [self.fontSizeChoice selectItemWithTitle:@"18 pt"];
+    if ([self.fontSizeChoice itemWithTitle:sizeTitle]) [self.fontSizeChoice selectItemWithTitle:sizeTitle];
+    self.fontSizeChoice.target = self;
+    self.fontSizeChoice.action = @selector(changeFontSize:);
+    self.fontSizeChoice.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.fontSizeChoice setAccessibilityLabel:@"Preview font size"];
+    [bar addSubview:self.fontSizeChoice];
     return bar;
 }
 
@@ -110,7 +123,9 @@
         [bar.heightAnchor constraintEqualToConstant:42],
         [self.mode.centerXAnchor constraintEqualToAnchor:bar.centerXAnchor],
         [self.mode.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
-        [self.fontChoice.trailingAnchor constraintEqualToAnchor:bar.trailingAnchor constant:-12],
+        [self.fontSizeChoice.trailingAnchor constraintEqualToAnchor:bar.trailingAnchor constant:-12],
+        [self.fontSizeChoice.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
+        [self.fontChoice.trailingAnchor constraintEqualToAnchor:self.fontSizeChoice.leadingAnchor constant:-8],
         [self.fontChoice.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.mode.trailingAnchor constant:12],
         [self.fontChoice.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
         [scroll.topAnchor constraintEqualToAnchor:bar.bottomAnchor],
@@ -146,6 +161,13 @@
     [self updateAppearance];
 }
 
+- (void)changeFontSize:(id)sender {
+    (void)sender;
+    NSInteger size = self.fontSizeChoice.titleOfSelectedItem.integerValue;
+    [[NSUserDefaults standardUserDefaults] setInteger:size forKey:@"PreviewFontSize"];
+    [self updateAppearance];
+}
+
 - (void)updateAppearance {
     if (!self.source) {
         return;
@@ -162,7 +184,8 @@
 
 - (NSAttributedString *)textForAppearance:(NSAppearance *)appearance dark:(BOOL)dark {
     if (self.mode.selectedSegment != 1) {
-        return MarkdownTextWithFont(self.source, appearance, self.fontChoice.titleOfSelectedItem);
+        return MarkdownTextWithFont(self.source, appearance, self.fontChoice.titleOfSelectedItem,
+            self.fontSizeChoice.titleOfSelectedItem.integerValue);
     }
 
     NSDictionary *attributes = @{
