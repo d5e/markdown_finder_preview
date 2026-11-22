@@ -88,11 +88,19 @@ static void StyleLinks(NSMutableAttributedString *text, NSColor *color) {
         }];
 }
 
-NSAttributedString *MarkdownText(NSString *source, NSAppearance *appearance) {
+NSAttributedString *MarkdownTextWithFont(NSString *source, NSAppearance *appearance, NSString *fontFamily) {
     BOOL dark = IsDarkAppearance(appearance);
     NSString *html = HTMLForAppearance(source, dark);
+    NSString *family = [fontFamily isEqualToString:@"Sans-serif"] ? @"-apple-system,sans-serif" :
+        ([fontFamily isEqualToString:@"Monospace"] ? @"Menlo,monospace" : @"'Iowan Old Style',Georgia,serif");
+    html = [html stringByReplacingOccurrencesOfString:@"'Iowan Old Style',Georgia,serif" withString:family];
+    html = [html stringByReplacingOccurrencesOfString:@"font-family:-apple-system,sans-serif;font-size:.92em" withString:@"font-size:.92em"];
     NSMutableAttributedString *text = ImportHTML(html) ?: FallbackText(source);
     ApplyInkColor(text, InkColor(dark));
     StyleLinks(text, LinkColor(dark));
     return text;
+}
+
+NSAttributedString *MarkdownText(NSString *source, NSAppearance *appearance) {
+    return MarkdownTextWithFont(source, appearance, @"Serif");
 }

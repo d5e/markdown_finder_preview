@@ -17,6 +17,7 @@
 
 @interface PreviewViewController : NSViewController <QLPreviewingController>
 @property(nonatomic, strong) NSSegmentedControl *mode;
+@property(nonatomic, strong) NSPopUpButton *fontChoice;
 @property(nonatomic, strong) PreviewTextView *documentView;
 @property(nonatomic, copy) NSString *source;
 @end
@@ -46,6 +47,16 @@
     self.mode.translatesAutoresizingMaskIntoConstraints = NO;
     [self.mode setAccessibilityLabel:@"Markdown view"];
     [bar addSubview:self.mode];
+
+    self.fontChoice = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
+    [self.fontChoice addItemsWithTitles:@[@"Serif", @"Sans-serif", @"Monospace"]];
+    NSString *savedFont = [[NSUserDefaults standardUserDefaults] stringForKey:@"PreviewFontFamily"];
+    if (savedFont && [self.fontChoice itemWithTitle:savedFont]) [self.fontChoice selectItemWithTitle:savedFont];
+    self.fontChoice.target = self;
+    self.fontChoice.action = @selector(changeFont:);
+    self.fontChoice.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.fontChoice setAccessibilityLabel:@"Preview font"];
+    [bar addSubview:self.fontChoice];
     return bar;
 }
 
@@ -81,6 +92,9 @@
         [bar.heightAnchor constraintEqualToConstant:42],
         [self.mode.centerXAnchor constraintEqualToAnchor:bar.centerXAnchor],
         [self.mode.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
+        [self.fontChoice.trailingAnchor constraintEqualToAnchor:bar.trailingAnchor constant:-12],
+        [self.fontChoice.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.mode.trailingAnchor constant:12],
+        [self.fontChoice.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
         [scroll.topAnchor constraintEqualToAnchor:bar.bottomAnchor],
         [scroll.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
         [scroll.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
@@ -108,6 +122,12 @@
     [self.documentView scrollRangeToVisible:NSMakeRange(0, 0)];
 }
 
+- (void)changeFont:(id)sender {
+    (void)sender;
+    [[NSUserDefaults standardUserDefaults] setObject:self.fontChoice.titleOfSelectedItem forKey:@"PreviewFontFamily"];
+    [self updateAppearance];
+}
+
 - (void)updateAppearance {
     if (!self.source) {
         return;
@@ -124,7 +144,7 @@
 
 - (NSAttributedString *)textForAppearance:(NSAppearance *)appearance dark:(BOOL)dark {
     if (self.mode.selectedSegment != 1) {
-        return MarkdownText(self.source, appearance);
+        return MarkdownTextWithFont(self.source, appearance, self.fontChoice.titleOfSelectedItem);
     }
 
     NSDictionary *attributes = @{

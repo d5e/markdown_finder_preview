@@ -1,8 +1,8 @@
 # Markdown Finder Preview
 
-Read Markdown in macOS Finder. Select a Markdown file and press Space to open a typeset Quick Look preview. Use **Preview** and **Source** at the top to switch between the rendered document and its original text. Each file opens in Preview. Finder’s right-hand Preview pane shows a typeset first-page thumbnail on light paper.
+Read Markdown in macOS Finder. Select a Markdown file and press Space to open a typeset Quick Look preview. Use **Preview** and **Source** at the top to switch between the rendered document and its original text. Choose **Serif**, **Sans-serif**, or **Monospace** from the font menu for the rendered preview; the choice is remembered. Each file opens in Preview. Finder’s right-hand Preview pane shows a typeset first-page thumbnail on light paper.
 
-The page follows macOS light and dark appearance. It uses Iowan Old Style for reading, Menlo for code, and a narrow measure for longer documents. The local MD4C renderer supports CommonMark with GitHub-style tables, task lists, and strikethrough. This MVP displays links as text with link styling and keeps navigation and image loading disabled.
+The page follows macOS light and dark appearance. It defaults to Iowan Old Style for reading and uses Menlo for code, and a narrow measure for longer documents. The local MD4C renderer supports CommonMark with GitHub-style tables, task lists, and strikethrough. This MVP displays links as text with link styling and keeps navigation and image loading disabled.
 
 ## Build and register
 
