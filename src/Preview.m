@@ -15,6 +15,20 @@
 }
 @end
 
+@interface PreviewScrollView : NSScrollView
+@end
+
+@implementation PreviewScrollView
+- (void)tile {
+    [super tile];
+    NSView *document = self.documentView;
+    CGFloat width = self.contentSize.width;
+    if (document && width > 0 && document.frame.size.width != width) {
+        [document setFrameSize:NSMakeSize(width, document.frame.size.height)];
+    }
+}
+@end
+
 @interface PreviewViewController : NSViewController <QLPreviewingController>
 @property(nonatomic, strong) NSSegmentedControl *mode;
 @property(nonatomic, strong) NSPopUpButton *fontChoice;
@@ -61,16 +75,20 @@
 }
 
 - (NSScrollView *)createDocumentScrollView {
-    NSScrollView *scroll = [[NSScrollView alloc] init];
+    NSScrollView *scroll = [[PreviewScrollView alloc] init];
     scroll.translatesAutoresizingMaskIntoConstraints = NO;
     scroll.hasVerticalScroller = YES;
     scroll.drawsBackground = YES;
 
-    self.documentView = [[PreviewTextView alloc] init];
+    self.documentView = [[PreviewTextView alloc] initWithFrame:NSZeroRect];
     self.documentView.editable = NO;
     self.documentView.selectable = YES;
     self.documentView.drawsBackground = NO;
     self.documentView.verticallyResizable = YES;
+    self.documentView.horizontallyResizable = NO;
+    self.documentView.minSize = NSMakeSize(0, 0);
+    self.documentView.maxSize = NSMakeSize(CGFLOAT_MAX, CGFLOAT_MAX);
+    self.documentView.textContainer.containerSize = NSMakeSize(0, CGFLOAT_MAX);
     self.documentView.autoresizingMask = NSViewWidthSizable;
     self.documentView.textContainer.widthTracksTextView = YES;
     self.documentView.textContainerInset = NSMakeSize(38, 30);

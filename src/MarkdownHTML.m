@@ -13,7 +13,7 @@ static NSString * const HTMLDocumentTemplate =
     ":root{color-scheme:light dark;--paper:#fff;--ink:#262423;--muted:#595553;--rule:#dedbd7;--wash:#f5f3f0;--link:#215b8f}"
     "@media(prefers-color-scheme:dark){:root{--paper:#202123;--ink:#eeece7;--muted:#c0bab3;--rule:#4c4a47;--wash:#2c2d30;--link:#9acbf1}}"
     "html{background:var(--paper);color:var(--ink);overflow-wrap:anywhere}"
-    "body{box-sizing:border-box;max-width:72ch;margin:auto;padding:clamp(24px,5vw,54px);font:18px/1.64 'Iowan Old Style',Georgia,serif;"
+    "body{box-sizing:border-box;margin:0;padding:clamp(24px,5vw,54px);font:18px/1.64 'Iowan Old Style',Georgia,serif;"
     "font-kerning:normal;font-variant-numeric:oldstyle-nums}"
     "h1,h2,h3,h4,h5,h6{line-height:1.17;margin:1.5em 0 .45em;font-weight:700}"
     "h1{font-size:2.35em;letter-spacing:-.025em}h2{font-size:1.65em}h3{font-size:1.26em}"

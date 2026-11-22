@@ -14,6 +14,11 @@ xcrun clang -mmacosx-version-min=10.15 -fobjc-arc -Isrc -Ivendor/md4c \
     -framework Foundation -o "$scratch/render"
 "$scratch/render"
 
+xcrun clang -mmacosx-version-min=10.15 -fobjc-arc -Isrc -Ivendor/md4c \
+    tests/responsive.m src/MarkdownText.m src/MarkdownHTML.m vendor/md4c/{md4c.c,md4c-html.c,entity.c} \
+    -framework Cocoa -framework QuickLook -o "$scratch/responsive"
+"$scratch/responsive"
+
 if [[ ${1:-} == --finder ]]; then
     fixture="$scratch/Markdown Finder Smoke.md"
     printf '# Markdown Finder Smoke\n\n**Rendered text**\n' > "$fixture"
