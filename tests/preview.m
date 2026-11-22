@@ -90,13 +90,17 @@ static BOOL CheckControls(PreviewViewController *controller, NSURL *fixture) {
         defaultSize && size.numberOfItems == 5 && increasing && [defaults integerForKey:@"PreviewFontSize"] == 18);
 
     NSSegmentedControl *mode = controller.mode;
+    BOOL initiallyVisible = !family.hidden && !size.hidden;
     mode.selectedSegment = 1;
     [mode sendAction:mode.action to:mode.target];
+    BOOL hiddenInSource = family.hidden && size.hidden;
     BOOL literal = [text.string isEqual:@"**Rendered**\n"];
     mode.selectedSegment = 0;
     [mode sendAction:mode.action to:mode.target];
     passed &= Check(@"integration mode control switches to source and back",
         literal && [text.string containsString:@"Rendered"] && ![text.string containsString:@"**"]);
+    passed &= Check(@"integration font menus are visible only in Preview",
+        initiallyVisible && hiddenInSource && !family.hidden && !size.hidden);
     [defaults setObject:oldFamily forKey:@"PreviewFontFamily"];
     [defaults setObject:oldSize forKey:@"PreviewFontSize"];
     return passed;

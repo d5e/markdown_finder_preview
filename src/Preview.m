@@ -150,6 +150,9 @@
 }
 
 - (void)showSelectedMode:(NSSegmentedControl *)sender {
+    BOOL showingSource = sender.selectedSegment == 1;
+    self.fontChoice.hidden = showingSource;
+    self.fontSizeChoice.hidden = showingSource;
     [self updateAppearance];
     [self.documentView setSelectedRange:NSMakeRange(0, 0)];
     [self.documentView scrollRangeToVisible:NSMakeRange(0, 0)];
